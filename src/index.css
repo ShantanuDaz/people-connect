@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Optional custom base styles */
+body {
+  margin: 0;
+  overflow: hidden;
+}
