@@ -3,9 +3,11 @@ import ProfileSetup from './features/identity/components/ProfileSetup'
 import ImportProfile from './features/identity/components/ImportProfile'
 import ChatLayout from './features/chat/components/ChatLayout'
 import AppLayout from './features/app'
+import useUserStore from './store/useUserStore'
 
 export default function App() {
-  const [profile, setProfile] = useState(null)
+  const profile = useUserStore((state) => state.profile)
+  const setProfile = useUserStore((state) => state.setProfile)
   const [view, setView] = useState('loading') // 'loading', 'setup', 'import', 'chat'
 
   useEffect(() => {

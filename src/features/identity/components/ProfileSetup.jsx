@@ -4,6 +4,7 @@ import { generateMnemonic, mnemonicToSeedHex } from '../utils/crypto'
 
 export default function ProfileSetup({ onComplete, onNavigateImport }) {
   const [name, setName] = useState('')
+  const [avatar, setAvatar] = useState(null)
   const [mnemonic, setMnemonic] = useState('')
   const [step, setStep] = useState(1) // 1: Name, 2: Seed Phrase
   const [copied, setCopied] = useState(false)
@@ -33,9 +34,20 @@ export default function ProfileSetup({ onComplete, onNavigateImport }) {
     document.body.removeChild(element)
   }
 
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatar(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleComplete = async () => {
     const seedHex = await mnemonicToSeedHex(mnemonic)
-    const profile = { name: name.trim(), mnemonic, seedHex }
+    const profile = { name: name.trim(), avatar, mnemonic, seedHex }
     
     // Save to Electron store
     await window.store.setProfile(profile)
@@ -47,11 +59,34 @@ export default function ProfileSetup({ onComplete, onNavigateImport }) {
       <div className="w-full max-w-md bg-zinc-900/60 border border-zinc-800 rounded-xl p-8 shadow-2xl backdrop-blur-sm">
         
         <div className="flex justify-center mb-6">
-          <div className="p-3 bg-emerald-500/10 rounded-full">
+          <div 
+            className={`relative rounded-full flex items-center justify-center ${step === 1 ? 'cursor-pointer group' : ''} ${!avatar || step !== 1 ? 'p-3 bg-emerald-500/10' : ''}`}
+            onClick={() => step === 1 && document.getElementById('avatar-upload')?.click()}
+          >
             {step === 1 ? (
-              <User className="w-8 h-8 text-emerald-400" />
+              avatar ? (
+                <img src={avatar} alt="Avatar" className="w-20 h-20 rounded-full object-cover border-2 border-emerald-500/50" />
+              ) : (
+                <User className="w-12 h-12 text-emerald-400" />
+              )
             ) : (
               <KeyRound className="w-8 h-8 text-emerald-400" />
+            )}
+            
+            {step === 1 && (
+               <div className={`absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${avatar ? 'w-20 h-20' : ''}`}>
+                 <span className="text-xs text-zinc-200 font-medium">Upload</span>
+               </div>
+            )}
+            
+            {step === 1 && (
+              <input 
+                id="avatar-upload" 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleAvatarUpload} 
+              />
             )}
           </div>
         </div>
