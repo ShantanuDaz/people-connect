@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import ProfileSetup from './features/identity/components/ProfileSetup'
 import ImportProfile from './features/identity/components/ImportProfile'
 import ChatLayout from './features/chat/components/ChatLayout'
+import AppLayout from './features/app'
 
 export default function App() {
   const [profile, setProfile] = useState(null)
@@ -26,7 +27,7 @@ export default function App() {
         setView('setup')
       }
     }
-    
+
     // Slight delay to avoid flash of loading text
     setTimeout(init, 100)
   }, [])
@@ -58,18 +59,20 @@ export default function App() {
   }
 
   if (view === 'setup') {
-    return <ProfileSetup 
-      onComplete={handleProfileComplete} 
-      onNavigateImport={() => setView('import')} 
+    return <ProfileSetup
+      onComplete={handleProfileComplete}
+      onNavigateImport={() => setView('import')}
     />
   }
 
   if (view === 'import') {
-    return <ImportProfile 
-      onComplete={handleProfileComplete} 
-      onNavigateSetup={() => setView('setup')} 
+    return <ImportProfile
+      onComplete={handleProfileComplete}
+      onNavigateSetup={() => setView('setup')}
     />
   }
+
+  return <AppLayout />
 
   if (view === 'chat' && profile) {
     return <ChatLayout profile={profile} onLogout={handleLogout} />
