@@ -1,10 +1,13 @@
 import UserSettings from "@/features/UserSettings";
+import ConnectionLayout from "@/features/chat/components/ConnectionLayout";
 
 const Main = ({ currentSection = "" }) => {
   const getSection = (section) => {
     switch (section) {
       case "profile":
         return <UserSettings />;
+      case "messages":
+        return <ConnectionLayout />;
       default:
         return section + " In Progress";
     }

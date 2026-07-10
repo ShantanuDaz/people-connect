@@ -6,7 +6,7 @@ const AppLayout = () => {
   const [currentSection, setCurrentSection] = useState("messages");
   return (
     <div className="h-full grid grid-cols-[auto_1fr]">
-      <Header onSectionChange={(section) => setCurrentSection(section)} />
+      <Header currentSection={currentSection} onSectionChange={(section) => setCurrentSection(section)} />
       <Main currentSection={currentSection} />
     </div>
   );

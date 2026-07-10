@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperbee Database Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for Keys -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>DB Visualizer</h1>
+                <input type="text" id="search-input" placeholder="Search keys..." />
+            </div>
+            <div class="keys-list" id="keys-list">
+                <div class="loading">Loading database...</div>
+            </div>
+        </aside>
+
+        <!-- Main Viewer for Values -->
+        <main class="viewer">
+            <div class="viewer-header">
+                <h2 id="current-key">Select a key to view data</h2>
+            </div>
+            <div class="viewer-content" id="viewer-content">
+                <div class="empty-state">
+                    <p>No data selected</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

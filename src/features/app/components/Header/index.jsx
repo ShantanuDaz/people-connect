@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Button from "@components/Button";
 import useUserStore from "../../../../store/useUserStore";
 
-const Header = ({ onSectionChange }) => {
+const Header = ({ currentSection, onSectionChange }) => {
   const profile = useUserStore((state) => state.profile);
 
   const [theme, setTheme] = useState(() => {
@@ -40,16 +40,18 @@ const Header = ({ onSectionChange }) => {
       <section className="grid gap-3">
         <Button
           icon={MessageCircle}
-          variant="primary"
+          variant={currentSection === "messages" ? "primary" : "ghost"}
           onClick={() => handleSectionChange("messages")}
         />
         <Button
           icon={SquarePen}
+          variant={currentSection === "compose" ? "primary" : "ghost"}
           title="In progress"
           onClick={() => handleSectionChange("compose")}
         />
         <Button
           icon={Bell}
+          variant={currentSection === "notifications" ? "primary" : "ghost"}
           title="In progress"
           onClick={() => handleSectionChange("notifications")}
         />
@@ -61,13 +63,17 @@ const Header = ({ onSectionChange }) => {
           title="Toggle Theme"
         />
         <Button
-          variant="secondary"
+          variant={currentSection === "profile" ? "primary" : "secondary"}
           rounded="full"
           onClick={() => handleSectionChange("profile")}
           className={profile?.avatar ? "!p-0.5 overflow-hidden" : ""}
         >
           {profile?.avatar ? (
-            <img src={profile.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+            <img
+              src={profile.avatar}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover"
+            />
           ) : (
             <User size={24} />
           )}
