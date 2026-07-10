@@ -1,35 +1,29 @@
 {
-  "name": "pear-chat",
+  "name": "people-connect",
   "version": "1.0.0",
-  "main": "electron/main.js",
-  "type": "commonjs",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && NODE_ENV=development electron . --no-sandbox\"",
-    "dev:peer": "NODE_ENV=development electron . --user-data-dir=./.peer2-data --no-sandbox",
-    "build": "vite build",
-    "start": "electron . --no-sandbox"
+    "start": "node worker/main.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShantanuDaz/people-connect.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShantanuDaz/people-connect/issues"
+  },
+  "homepage": "https://github.com/ShantanuDaz/people-connect#readme",
   "dependencies": {
-    "b4a": "^1.6.7",
+    "b4a": "^1.8.1",
     "bip39": "^3.1.0",
-    "buffer": "^6.0.3",
     "hyperbee": "^2.27.3",
     "hypercore": "^11.33.5",
     "hypercore-crypto": "^3.7.0",
-    "hyperswarm": "^4.17.0",
-    "lucide-react": "^1.23.0",
-    "pear-runtime": "^1.1.4",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "zustand": "^5.0.14"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.3.2",
-    "@vitejs/plugin-react": "^6.0.3",
-    "concurrently": "^10.0.3",
-    "electron": "^40.2.1",
-    "tailwindcss": "^4.3.2",
-    "vite": "^8.1.3",
-    "wait-on": "^9.0.10"
+    "hyperswarm": "^4.17.0"
   }
 }
