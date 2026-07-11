@@ -1,11 +1,9 @@
-import * as bip39 from "bip39";
 import hypercoreCrypto from "hypercore-crypto";
 import b4a from "b4a";
 
-export const generateKeysFromMnemonic = (mnemonic) => {
-  // 1. Convert the 24 words into a 32-byte seed for Hypercore
-  const fullSeed = bip39.mnemonicToSeedSync(mnemonic);
-  const hyperCoreSeed = fullSeed.subarray(0, 32);
+export const generateKeysFromSeed = (seedHex) => {
+  // 1. Convert the hex string from React back into a buffer
+  const hyperCoreSeed = b4a.from(seedHex, "hex");
 
   // 2. Generate the cryptographic keypair using the seed
   const keyPair = hypercoreCrypto.keyPair(hyperCoreSeed);

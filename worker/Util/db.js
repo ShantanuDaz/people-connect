@@ -2,8 +2,9 @@ import Hypercore from "hypercore";
 import Hyperbee from "hyperbee";
 
 const initDB = async () => {
-  // 1. Create a Hypercore. We pass a local folder path where it will save the files.
-  const core = new Hypercore("./db/local-user");
+  // Use the storage path passed from the Pear Runtime!
+  const storagePath = Bare.argv[2] || "./db/local-user";
+  const core = new Hypercore(storagePath);
 
   // 2. Wrap the core in a Hyperbee so we can use it like a Key-Value store.
   // We specify utf-8 encoding so we can save normal text strings.
