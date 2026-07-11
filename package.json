@@ -2,10 +2,11 @@
   "name": "people-connect",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "electron/electron.js",
   "type": "module",
   "scripts": {
-    "start": "node worker/main.js"
+    "start": "node worker/main.js",
+    "dev": "concurrently \"vite\" \"electron . --no-sandbox\""
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,14 @@
     "hyperbee": "^2.27.3",
     "hypercore": "^11.33.5",
     "hypercore-crypto": "^3.7.0",
-    "hyperswarm": "^4.17.0"
+    "hyperswarm": "^4.17.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^10.0.3",
+    "electron": "^43.1.0",
+    "vite": "^8.1.4"
   }
 }
