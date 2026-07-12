@@ -13,7 +13,7 @@ const createMainWindow = () => {
     backgroundColor: "#1a1a1a",
     webPreferences: {
       // Attach our bridge securely
-      preload: path.join(__dirname, "preload.cjs"),
+      preload: path.join(__dirname, "..", "preload.cjs"),
       contextIsolation: true,
     },
   });

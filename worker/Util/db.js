@@ -3,7 +3,7 @@ import Hyperbee from "hyperbee";
 
 const initDB = async () => {
   // Use the storage path passed from the Pear Runtime!
-  const storagePath = Bare.argv[2] || "./db/local-user";
+  const storagePath = Bare.argv[2];
   const core = new Hypercore(storagePath);
 
   // 2. Wrap the core in a Hyperbee so we can use it like a Key-Value store.

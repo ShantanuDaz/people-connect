@@ -1,13 +1,11 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import createMainWindow from "./util/window.js";
 import { sendToWorker } from "./util/workerClient.js";
-import { registerProfileHandlers } from "./ipc/profile.js";
-import { registerNetworkHandlers } from "./ipc/network.js";
+import { registerAllHandlers } from "./ipc/index.js";
 
 app.whenReady().then(() => {
   // Register all feature handlers!
-  registerProfileHandlers(ipcMain, sendToWorker);
-  registerNetworkHandlers(ipcMain, sendToWorker);
+  registerAllHandlers(ipcMain, sendToWorker);
 
   // Ping test
   ipcMain.handle("ping", () => {

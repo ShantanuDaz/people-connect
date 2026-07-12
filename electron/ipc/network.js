@@ -1,5 +1,9 @@
 export const registerNetworkHandlers = (ipcMain, sendToWorker) => {
   ipcMain.handle("api:join-swarm", async (_, keyPair) => {
-    return await sendToWorker("network:joinSwarm", keyPair);
+    try {
+      return await sendToWorker("network:joinSwarm", keyPair);
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   });
 };

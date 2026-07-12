@@ -1,12 +1,13 @@
 {
   "name": "people-connect",
   "version": "1.0.0",
+  "upgrade": "pear://0000000000000000000000000000000000000000000000000000000000000000",
   "description": "",
   "main": "electron/electron.js",
   "type": "module",
   "scripts": {
     "start": "node worker/main.js",
-    "dev": "concurrently \"vite\" \"electron . --no-sandbox\""
+    "dev": "concurrently \"vite\" \"nodemon --watch electron --watch worker -e js,cjs,mjs,json --exec 'electron . --no-sandbox'\""
   },
   "repository": {
     "type": "git",
@@ -23,19 +24,24 @@
     "@tailwindcss/vite": "^4.3.2",
     "b4a": "^1.8.1",
     "bip39": "^3.1.0",
+    "buffer": "^6.0.3",
     "hyperbee": "^2.27.3",
     "hypercore": "^11.33.5",
     "hypercore-crypto": "^3.7.0",
     "hyperswarm": "^4.17.0",
+    "lucide-react": "^1.24.0",
     "pear-runtime": "^1.3.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "tailwindcss": "^4.3.2"
+    "react-router": "^8.2.0",
+    "tailwindcss": "^4.3.2",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.3",
     "concurrently": "^10.0.3",
     "electron": "^43.1.0",
+    "nodemon": "^3.1.14",
     "vite": "^8.1.4"
   }
 }
