@@ -75,7 +75,7 @@ export function Header() {
             }`
           }
         >
-          <Settings size={24} />
+          <div className="w-6 h-6 flex items-center justify-center font-bold text-[10px] rounded-full border-2 border-current">SD</div>
         </NavLink>
       </nav>
       
