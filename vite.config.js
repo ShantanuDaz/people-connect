@@ -14,4 +14,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    watch: {
+      ignored: [
+        "**/test-client-data/**",
+        "**/corestore-data/**",
+        "**/test-corestore-data/**",
+      ],
+    },
+  },
 });

@@ -1,13 +1,15 @@
-import { Settings, User, Key, Shield, Eye, EyeOff } from "lucide-react";
+import { Settings, User, Key, Shield, Eye, EyeOff, Smartphone } from "lucide-react";
 import { useUserStore } from "../../stores/useUserStore";
 import * as bip39 from "bip39";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { HostPairingUI } from "../auth/components/pairing/HostPairingUI";
 
 export function UserSettings() {
   const user = useUserStore((state) => state.user);
   const clearUser = useUserStore((state) => state.clearUser);
   const [showMnemonic, setShowMnemonic] = useState(false);
+  const [isPairing, setIsPairing] = useState(false);
   const navigate = useNavigate();
 
   const mnemonic = user?.mnemonic || (user?.seedHex ? bip39.entropyToMnemonic(user.seedHex) : "");
@@ -15,12 +17,31 @@ export function UserSettings() {
   const handleSignOut = async () => {
     try {
       await window.api.profile.clear();
+      await window.api.identity.clearConfig();
       clearUser();
       navigate("/login", { replace: true });
     } catch (err) {
       console.error("Failed to sign out:", err);
     }
   };
+
+  if (isPairing) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full w-full bg-background p-4 overflow-y-auto">
+        <div className="bg-card p-8 rounded-2xl border border-border shadow-sm flex flex-col items-center max-w-lg w-full gap-6">
+          <div className="bg-primary/10 p-4 rounded-full">
+            <Smartphone className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold text-foreground">Add a Device</h2>
+          <div className="w-full">
+            <HostPairingUI 
+              onCancel={() => setIsPairing(false)} 
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-background p-4 overflow-y-auto">
@@ -81,8 +102,15 @@ export function UserSettings() {
           )}
           
           <button 
+            onClick={() => setIsPairing(true)}
+            className="w-full py-3 px-4 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground font-medium rounded-xl transition-all cursor-pointer border border-primary/20 mt-4"
+          >
+            Add a New Device
+          </button>
+          
+          <button 
             onClick={handleSignOut}
-            className="w-full py-3 px-4 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground font-medium rounded-xl transition-all cursor-pointer border border-destructive/20 mt-4"
+            className="w-full py-3 px-4 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground font-medium rounded-xl transition-all cursor-pointer border border-destructive/20 mt-2"
           >
             Sign Out
           </button>

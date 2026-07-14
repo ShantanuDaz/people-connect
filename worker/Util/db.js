@@ -1,22 +1,14 @@
-import Hypercore from "hypercore";
-import Hyperbee from "hyperbee";
+import Corestore from "corestore";
 
 const initDB = async () => {
-  // Use the storage path passed from the Pear Runtime!
-  const storagePath = Bare.argv[2];
-  const core = new Hypercore(storagePath);
+  // Use the storage path passed from the Pear Runtime or default fallback!
+  const storagePath = Bare.argv[2] || "./corestore-data";
+  const store = new Corestore(storagePath);
 
-  // 2. Wrap the core in a Hyperbee so we can use it like a Key-Value store.
-  // We specify utf-8 encoding so we can save normal text strings.
-  const db = new Hyperbee(core, {
-    keyEncoding: "utf-8",
-    valueEncoding: "utf-8",
-  });
+  // Wait for the store to be fully ready
+  await store.ready();
 
-  // 3. Wait for the database to be fully ready
-  await db.ready();
-
-  return db;
+  return store;
 };
 
 export default initDB;

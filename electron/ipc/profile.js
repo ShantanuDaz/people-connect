@@ -7,9 +7,9 @@ export const registerProfileHandlers = (ipcMain, sendToWorker) => {
     }
   });
 
-  ipcMain.handle("api:save-profile", async (_, seedHex, name, mnemonic) => {
+  ipcMain.handle("api:save-profile", async (_, name, displayName) => {
     try {
-      return await sendToWorker("profile:saveProfile", { seedHex, name, mnemonic });
+      return await sendToWorker("profile:saveProfile", { name, displayName });
     } catch (error) {
       return { success: false, error: error.message };
     }

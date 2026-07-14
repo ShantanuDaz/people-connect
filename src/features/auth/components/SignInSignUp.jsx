@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { SignUpNameStep } from "./signupin/SignUpNameStep";
 import { SignUpPhraseStep } from "./signupin/SignUpPhraseStep";
 import { SignInForm } from "./signupin/SignInForm";
+import { ClientPairingUI } from "./pairing/ClientPairingUI";
 
 export const SignInSignUp = () => {
   const user = useUserStore((state) => state.user);
@@ -27,15 +28,25 @@ export const SignInSignUp = () => {
   } = useAuthStore();
 
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
-    // Check if profile exists locally
-    const loadProfile = async () => {
+    // Check if worker auto-booted via Local Config
+    const bootCheck = async () => {
       try {
-        const profile = await window.api.profile.get();
-        if (profile) {
-          setUser(profile);
-          navigate("/", { replace: true });
+        const status = await window.api.identity.getStatus();
+        if (status.success && !status.isLoggedOut) {
+          // Worker successfully loaded keys and started Autobase!
+          const profile = await window.api.profile.get();
+          if (profile) {
+            setUser({ 
+              ...profile, 
+              accountId: status.config.bootstrapKeyHex,
+              publicKeyHex: status.config.bootstrapKeyHex,
+              seedHex: status.config.mnemonicSeedHex 
+            });
+            navigate("/", { replace: true });
+          }
         }
       } catch (err) {
         console.error("Failed to load profile", err);
@@ -43,7 +54,7 @@ export const SignInSignUp = () => {
         setLoading(false);
       }
     };
-    loadProfile();
+    bootCheck();
   }, [setUser, navigate]);
 
   useEffect(() => {
@@ -64,6 +75,8 @@ export const SignInSignUp = () => {
 
   const handleFinalSubmit = async (e) => {
     if (e) e.preventDefault();
+    if (submitLoading) return;
+    
     setError("");
 
     if (!name.trim()) {
@@ -89,13 +102,37 @@ export const SignInSignUp = () => {
       return;
     }
 
+    setSubmitLoading(true);
+
     try {
-      // Convert the 24-word mnemonic back into the 256-bit (32-byte) hex string seed
+      // Convert mnemonic to seed hex
       const seedHex = bip39.mnemonicToEntropy(cleanMnemonic);
 
-      const profile = await window.api.profile.save(seedHex, name, cleanMnemonic);
-      if (profile && profile.keyPair) {
-        setUser(profile);
+      let accountId;
+      if (mode === "signup") {
+        // 1. Create Identity Account in Worker Corestore
+        const createRes = await window.api.identity.createAccount(seedHex, name);
+        if (createRes.error) throw new Error(createRes.error);
+        accountId = createRes.accountId;
+
+        // 2. Start the Autobase Runtime
+        const runtimeRes = await window.api.identity.startRuntime(accountId, createRes.deviceKey);
+        if (runtimeRes.error || runtimeRes.isLoggedOut) throw new Error("Failed to start Identity Runtime: " + (runtimeRes.error || "Device is logged out."));
+      } else {
+        const recoveryRes = await window.api.identity.processRecovery(seedHex);
+        if (recoveryRes.error) throw new Error(recoveryRes.error);
+        accountId = recoveryRes.accountId;
+      }
+
+      // 3. Save profile data to the Public P2P ledger
+      const profile = await window.api.profile.save(name, name); 
+      if (profile && !profile.error) {
+        setUser({ 
+          ...profile, 
+          accountId,
+          publicKeyHex: accountId,
+          seedHex 
+        });
         navigate("/", { replace: true });
       } else if (profile?.error) {
         setError(profile.error);
@@ -103,6 +140,54 @@ export const SignInSignUp = () => {
     } catch (err) {
       setError(err.message || "Failed to save profile");
       console.log(err.message);
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const handlePairSuccess = async (message) => {
+    try {
+      setLoading(true);
+      
+      if (message && message.bootstrapKeyHex && message.deviceKeyHex) {
+        const runtimeRes = await window.api.identity.startRuntime(message.bootstrapKeyHex, message.deviceKeyHex);
+        if (runtimeRes.error) throw new Error(runtimeRes.error);
+        
+        // Join global swarm so we can sync the OP_ADD_WRITER
+        await window.api.network.joinSwarm();
+        // Wait for sync
+        await new Promise(r => setTimeout(r, 1500));
+      } else {
+        setError(`Missing keys in message: ${JSON.stringify(message)}`);
+        setLoading(false);
+        return;
+      }
+
+      const status = await window.api.identity.getStatus();
+      if (status.success && !status.isLoggedOut) {
+        const profile = await window.api.profile.get();
+        if (profile && profile.name) {
+          useUserStore.getState().setUser({ 
+            ...profile, 
+            accountId: status.config.bootstrapKeyHex,
+            publicKeyHex: status.config.bootstrapKeyHex,
+            seedHex: status.config.mnemonicSeedHex 
+          });
+          useAuthStore.getState().login();
+          navigate("/home", { replace: true });
+        } else {
+          // If profile fetch fails, assume missing profile but logged in
+          useAuthStore.getState().login();
+          navigate("/profile/edit", { replace: true });
+        }
+      } else {
+        setError(`Identity status not logged in after pairing. Debug: ${JSON.stringify(status.debug)}`);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Failed to load profile after pairing", err);
+      setError(`Failed to boot after pairing: ${err.message}`);
+      setLoading(false);
     }
   };
 
@@ -144,28 +229,46 @@ export const SignInSignUp = () => {
 
         {mode === "signup" && signupStep === 2 && (
           <form onSubmit={handleFinalSubmit}>
-            <SignUpPhraseStep onSubmit={handleFinalSubmit} />
+            <SignUpPhraseStep onSubmit={handleFinalSubmit} loading={submitLoading} />
           </form>
         )}
 
         {mode === "signin" && (
           <form onSubmit={handleFinalSubmit}>
-            <SignInForm onSubmit={handleFinalSubmit} />
+            <SignInForm onSubmit={handleFinalSubmit} loading={submitLoading} />
           </form>
         )}
 
-        <div className="mt-8 text-center">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
-          >
-            {mode === "signup"
-              ? "Already have an account? Import it."
-              : "Don't have an account? Create one."}
-          </Button>
-        </div>
+        {mode === "pair" && (
+          <ClientPairingUI 
+            onPairSuccess={handlePairSuccess}
+            onCancel={() => setMode("signup")}
+          />
+        )}
+
+        {mode !== "pair" && (
+          <div className="mt-8 flex flex-col gap-2 text-center">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+            >
+              {mode === "signup"
+                ? "Already have an account? Recover via Seed."
+                : "Don't have an account? Create one."}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-xs"
+              onClick={() => setMode("pair")}
+            >
+              Link an existing device via Link
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
+

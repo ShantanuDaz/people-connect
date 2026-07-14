@@ -3,7 +3,7 @@ import { Button } from '@/components/Button';
 import { useRef } from 'react';
 import { Upload } from 'lucide-react';
 
-export const SignInForm = ({ onSubmit }) => {
+export const SignInForm = ({ onSubmit, loading }) => {
   const { name, setName, mnemonic, setMnemonic } = useAuthStore();
   const fileInputRef = useRef(null);
 
@@ -34,8 +34,9 @@ export const SignInForm = ({ onSubmit }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Satoshi"
-          className="w-full bg-input/50 text-foreground border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+          className="w-full bg-input/50 text-foreground border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50"
           autoFocus
+          disabled={loading}
         />
       </div>
 
@@ -48,11 +49,13 @@ export const SignInForm = ({ onSubmit }) => {
             ref={fileInputRef}
             className="hidden"
             onChange={handleFileUpload}
+            disabled={loading}
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-primary hover:text-primary/80 flex items-center gap-1 text-xs font-medium"
+            className="text-primary hover:text-primary/80 flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
           >
             <Upload className="w-3 h-3" />
             Import File
@@ -63,7 +66,8 @@ export const SignInForm = ({ onSubmit }) => {
           value={mnemonic}
           onChange={(e) => setMnemonic(e.target.value)}
           placeholder="Enter your 24-word secret recovery phrase..."
-          className="w-full bg-input/50 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all min-h-[100px] resize-y"
+          className="w-full bg-input/50 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all min-h-[100px] resize-y disabled:opacity-50"
+          disabled={loading}
         />
       </div>
 
@@ -73,8 +77,9 @@ export const SignInForm = ({ onSubmit }) => {
           onClick={onSubmit}
           variant="primary"
           fullWidth
+          disabled={loading}
         >
-          <span>Import Account</span>
+          <span>{loading ? "Importing Account..." : "Import Account"}</span>
         </Button>
       </div>
     </div>

@@ -88,13 +88,13 @@ export const sendToWorker = (action, payload) => {
   return new Promise((resolve, reject) => {
     const id = messageIdCounter++;
     
-    // Setup a 15 second timeout for this request
+    // Setup a 2 minute timeout for this request (some P2P operations take time)
     const timeoutId = setTimeout(() => {
       if (pendingRequests.has(id)) {
         pendingRequests.delete(id);
         reject(new Error(`Worker request timeout for action: ${action}`));
       }
-    }, 15000);
+    }, 120000);
 
     pendingRequests.set(id, { resolve, reject, timeoutId });
     

@@ -7,7 +7,8 @@
   "type": "module",
   "scripts": {
     "start": "node worker/main.js",
-    "dev": "concurrently \"vite\" \"nodemon --watch electron --watch worker -e js,cjs,mjs,json --exec 'electron . --no-sandbox'\""
+    "dev": "concurrently \"vite\" \"nodemon --watch electron --watch worker -e js,cjs,mjs,json --exec 'electron . --no-sandbox'\"",
+    "dev:client": "electron . --no-sandbox --user-data-dir=./test-client-data"
   },
   "repository": {
     "type": "git",

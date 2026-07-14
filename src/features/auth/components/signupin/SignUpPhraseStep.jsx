@@ -4,7 +4,7 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { useDownloadFile } from "@/hooks/useDownloadFile";
 import { Copy, Download, Check } from "lucide-react";
 
-export const SignUpPhraseStep = ({ onSubmit }) => {
+export const SignUpPhraseStep = ({ onSubmit, loading }) => {
   const { name, mnemonic, setSignupStep } = useAuthStore();
   const { copy, isCopied } = useCopyToClipboard();
   const { download } = useDownloadFile();
@@ -56,6 +56,7 @@ export const SignUpPhraseStep = ({ onSubmit }) => {
             variant="secondary"
             size="sm"
             className="flex-1"
+            disabled={loading}
           >
             {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
             {isCopied ? "Copied!" : "Copy to Clipboard"}
@@ -66,6 +67,7 @@ export const SignUpPhraseStep = ({ onSubmit }) => {
             variant="secondary"
             size="sm"
             className="flex-1"
+            disabled={loading}
           >
             <Download className="w-4 h-4" />
             Download .txt
@@ -87,8 +89,8 @@ export const SignUpPhraseStep = ({ onSubmit }) => {
       </div>
 
       <div className="flex flex-col gap-2 mt-4">
-        <Button type="button" onClick={onSubmit} variant="primary" fullWidth>
-          <span>Create Account</span>
+        <Button type="button" onClick={onSubmit} variant="primary" fullWidth disabled={loading}>
+          <span>{loading ? "Creating Account..." : "Create Account"}</span>
         </Button>
 
         <Button
@@ -96,6 +98,7 @@ export const SignUpPhraseStep = ({ onSubmit }) => {
           variant="ghost"
           onClick={() => setSignupStep(1)}
           fullWidth
+          disabled={loading}
         >
           Back
         </Button>
