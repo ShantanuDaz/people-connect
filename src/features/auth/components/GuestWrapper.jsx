@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
 import { useUserStore } from "../../../stores/useUserStore";
 
-export const AuthWrapper = () => {
+export const GuestWrapper = () => {
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
   const [isLoading, setIsLoading] = useState(true);
@@ -10,29 +10,26 @@ export const AuthWrapper = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const verifyUser = async () => {
-      // If no user, immediately stop loading so we can redirect
-      if (!user) {
+    const bootCheck = async () => {
+      // If user is already loaded in store, no need to check, just stop loading.
+      if (user) {
         if (isMounted) setIsLoading(false);
         return;
       }
 
-      // If the user is logged in but missing the secure keys
-      if (user && (!user.publicKeyHex || !user.seedHex)) {
-        try {
-          const response = await window.api.account.get();
-          if (response && response.success && response.user && isMounted) {
-            setUser(response.user);
-          }
-        } catch (error) {
-          console.error(error);
+      try {
+        const response = await window.api.account.get();
+        if (response && response.success && response.user && isMounted) {
+          setUser(response.user);
         }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
-
-      if (isMounted) setIsLoading(false);
     };
 
-    verifyUser();
+    bootCheck();
 
     return () => {
       isMounted = false;
@@ -47,9 +44,11 @@ export const AuthWrapper = () => {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/signup" replace />;
+  // If we have a user after the check, kick them to the main app
+  if (user) {
+    return <Navigate to="/" replace />;
   }
 
+  // Otherwise, let them see the auth routes
   return <Outlet />;
 };

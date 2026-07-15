@@ -13,6 +13,7 @@ export const Button = ({
   const variants = {
     primary: 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/20',
     secondary: 'bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-sm',
+    outline: 'border-2 border-border bg-transparent hover:bg-secondary/80 text-foreground shadow-sm',
     ghost: 'bg-transparent hover:bg-foreground/5 text-muted-foreground hover:text-foreground shadow-none active:scale-100',
     destructive: 'bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-sm',
   };

@@ -6,22 +6,9 @@ export function Header() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Check initial state from localStorage or document element
-    const savedTheme = localStorage.getItem("theme");
-    let isDarkMode = false;
-    
-    if (savedTheme) {
-      isDarkMode = savedTheme === "dark";
-    } else {
-      isDarkMode = document.documentElement.classList.contains("dark");
-    }
-
+    // Read the actual theme applied by index.html on boot
+    const isDarkMode = document.documentElement.classList.contains("dark");
     setIsDark(isDarkMode);
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
   }, []);
 
   const toggleTheme = () => {

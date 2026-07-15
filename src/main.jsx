@@ -2,7 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 import App from "./App.jsx";
-import { AuthWrapper, SignInSignUp } from "./features/auth";
+import { AuthWrapper, GuestWrapper, Login, Pairing } from "./features/auth";
+import { Onboarding } from "./features/onboarding";
 import { GlobalError } from "./components/GlobalError.jsx";
 import { Chat } from "./features/chat";
 import { UserSettings } from "./features/user";
@@ -13,9 +14,22 @@ window.Buffer = window.Buffer || Buffer;
 
 const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <SignInSignUp />,
-    errorElement: <GlobalError />
+    element: <GuestWrapper />,
+    errorElement: <GlobalError />,
+    children: [
+      {
+        path: "/signup",
+        element: <Onboarding />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/pairing",
+        element: <Pairing />,
+      }
+    ]
   },
   {
     element: <AuthWrapper />,

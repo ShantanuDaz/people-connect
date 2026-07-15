@@ -7,12 +7,11 @@ contextBridge.exposeInMainWorld("api", {
     save: (name, displayName) => ipcRenderer.invoke("api:save-profile", name, displayName),
     clear: () => ipcRenderer.invoke("api:clear-profile"),
   },
-  identity: {
-    getStatus: () => ipcRenderer.invoke("api:identity-status"),
-    createAccount: (mnemonicSeedHex, displayName) => ipcRenderer.invoke("api:create-account", mnemonicSeedHex, displayName),
-    startRuntime: (bootstrapKeyHex, deviceKeyHex) => ipcRenderer.invoke("api:start-runtime", bootstrapKeyHex, deviceKeyHex),
-    processRecovery: (mnemonicSeedHex, newDeviceKeyHex, newInputCoreKeyHex, bootstrapKeyHex) => ipcRenderer.invoke("api:process-recovery", mnemonicSeedHex, newDeviceKeyHex, newInputCoreKeyHex, bootstrapKeyHex),
-    clearConfig: () => ipcRenderer.invoke("api:clear-config"),
+  account: {
+    get: () => ipcRenderer.invoke("api:account-get"),
+    create: (payload) => ipcRenderer.invoke("api:account-create", payload),
+    update: (payload) => ipcRenderer.invoke("api:account-update", payload),
+    delete: () => ipcRenderer.invoke("api:account-delete"),
   },
   pairing: {
     host: (bootstrapKeyHex) => ipcRenderer.invoke("api:pairing-host", bootstrapKeyHex),

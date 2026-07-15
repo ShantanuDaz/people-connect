@@ -34,11 +34,10 @@ let workerReady = false;
 
 // Health check heartbeat for worker
 const heartbeatTimeout = setTimeout(() => {
-  if (!workerReady) {
-    console.error("❌ Pear worker failed to emit 'worker-ready' within 3 seconds. Killing worker...");
-    worker.kill();
-    // In a real app we might want to alert the UI explicitly here
-  }
+    if (!workerReady) {
+      console.error("❌ Pear worker failed to emit 'worker-ready' within 3 seconds.");
+      // In a real app we might want to alert the UI explicitly here
+    }
 }, 3000);
 
 const stream = new StreamBuffer((message) => {

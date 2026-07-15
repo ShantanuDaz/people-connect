@@ -10,7 +10,7 @@ const createMainWindow = () => {
   const win = new BrowserWindow({
     width: 1000,
     height: 800,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#09090b", // Matches shadcn dark mode background
     webPreferences: {
       // Attach our bridge securely
       preload: path.join(__dirname, "..", "preload.cjs"),
@@ -19,6 +19,7 @@ const createMainWindow = () => {
   });
 
   win.loadURL("http://localhost:5173");
+
   return win;
 };
 
