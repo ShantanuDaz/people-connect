@@ -50,3 +50,9 @@ For daily operations (e.g., sending chats, creating posts):
 1. The Worker uses its *local Device Keypair* to create standard Hypercores for daily writes.
 2. We use **Autobase** to combine daily logs from all authorized devices into one coherent timeline.
 3. Autobase is configured to read the **Auth Ledger**. It scans Block 1, verifies that the local Device Public Key is authorized by the Master, and seamlessly accepts the data.
+
+### 4. Multi-Device State Sync (Optimistic Boot + Reactive Push)
+**Role:** Ensuring the UI remains fast while keeping data synchronized across devices.
+* **Optimistic Boot:** The Electron Main Process caches a local copy of the profile data (`profile.json`) to allow the UI to boot instantly without waiting for P2P networking.
+* **Reconciliation:** On boot, Electron issues an `account:get` request to the Worker. If the Worker's ledger has newer profile data (e.g., updated from your phone), Electron updates its local cache and notifies the UI.
+* **Reactive Push (`account:sync`):** The Worker continuously listens for updates on the Auth Ledger. If a profile update block is appended by a different device, the Worker emits a spontaneous `account:sync` event to the Main process. The Main process intercepts this, updates the local `profile.json` cache, and broadcasts it to the UI (via `preload.cjs` IPC events) so the React state updates in real-time.

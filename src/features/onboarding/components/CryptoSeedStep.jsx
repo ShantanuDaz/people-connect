@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { Copy, CheckCircle2, Download } from "lucide-react";
 
 export const CryptoSeedStep = () => {
-  const { mnemonic, setStep, submitOnboarding, submitLoading } = useOnboardingStore();
+  const { mnemonic, name, setStep, submitOnboarding, submitLoading } = useOnboardingStore();
   const navigate = useNavigate();
   const { isCopied, copy } = useCopyToClipboard();
   const { download } = useDownloadFile();
@@ -37,7 +37,7 @@ export const CryptoSeedStep = () => {
         <div className="absolute top-2 right-2 flex gap-2">
           <button
             type="button"
-            onClick={() => download(mnemonic, { filename: "people-connect-recovery-phrase.txt" })}
+            onClick={() => download(mnemonic, { filename: `${name ? name.replace(/\s+/g, '-').toLowerCase() : 'people-connect'}-recovery-phrase.txt` })}
             className="p-2 bg-background rounded-lg border border-border hover:bg-secondary transition-colors"
             title="Download recovery phrase"
           >

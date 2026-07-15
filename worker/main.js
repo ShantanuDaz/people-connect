@@ -1,32 +1,31 @@
-import initDB from "./Util/db.js";
-import { initNetwork } from "./features/network/setupNetwork.js";
-import handleProfileMessage from "./features/profile/index.js";
-import { StreamBuffer } from "../shared/StreamBuffer.js";
-import handleIdentityMessage from "./features/identity/index.js";
-import handlePairingMessage from "./features/pairing/index.js";
-import { initConfigStore, getIdentityConfig } from "./Util/config.js";
-import { SystemIdentityManager } from "./features/identity/SystemIdentityManager.js";
-import crypto from "hypercore-crypto";
-import b4a from "b4a";
+import { initDB } from './utils/db.js';
+import { getLocalConfig } from './utils/config.js';
+import { handleAccountMessage } from './features/account/index.js';
+import { AccountManager } from './features/account/AccountManager.js';
+import { StreamBuffer } from '../shared/StreamBuffer.js';
 
-let store, identityManager, swarm;
+// Global State
+let store;
+let activeAccountManager = null;
+let storageDir = "./corestore"; // In production, this should be passed from Electron via boot payload
 
 const startWorker = async () => {
   try {
-    // Boot the Corestore
-    store = await initDB();
-    
-    // Boot the Local Config DB
-    await initConfigStore(store);
-    const localConfig = await getIdentityConfig();
-    
-    // Auto-boot Identity Manager if keys exist locally
-    if (localConfig && localConfig.bootstrapKeyHex && localConfig.deviceKeyHex) {
-      console.log("Found local config. Auto-starting SystemIdentityManager...");
-      identityManager = new SystemIdentityManager(store, localConfig.bootstrapKeyHex, localConfig.deviceKeyHex);
-      await identityManager.startRuntimeEngine();
+    // Boot DB
+    store = await initDB(storageDir);
+
+    // Auto-boot if config exists
+    const localConfig = await getLocalConfig(storageDir);
+    if (localConfig && localConfig.authLedgerPublicKeyHex && localConfig.devicePublicKeyHex) {
+      activeAccountManager = new AccountManager(
+        store, 
+        localConfig.authLedgerPublicKeyHex, 
+        localConfig.devicePublicKeyHex
+      );
+      await activeAccountManager.start();
     }
 
+    // Set up IPC Stream Listener
     const stream = new StreamBuffer(async (message) => {
       const { id, action, payload } = message;
       const [feature, subAction] = action.split(":");
@@ -34,29 +33,21 @@ const startWorker = async () => {
       try {
         let result;
         
-        if (feature === "identity") {
-          const identityResponse = await handleIdentityMessage(subAction, payload, store, identityManager);
-          if (Object.prototype.hasOwnProperty.call(identityResponse, "identityManager")) {
-            identityManager = identityResponse.identityManager;
+        if (feature === "account") {
+          const response = await handleAccountMessage(subAction, payload, store, storageDir, activeAccountManager);
+          if (response && response.accountManager) {
+            activeAccountManager = response.accountManager;
           }
-          result = identityResponse.result;
-        } else if (feature === "pairing") {
-          result = await handlePairingMessage(subAction, payload, store, identityManager, swarm);
-        } else if (feature === "profile") {
-          if (!identityManager || identityManager.isLoggedOut) throw new Error("Identity manager not active or logged out.");
-          result = await handleProfileMessage(subAction, payload, identityManager);
-        } else if (feature === "network") {
-          if (subAction === "joinSwarm") {
-            swarm = await initNetwork(store);
-            const globalTopic = crypto.discoveryKey(crypto.hash(b4a.from("people-connect-global", "utf-8")));
-            const discovery = swarm.join(globalTopic, { client: true, server: true });
-            await discovery.flushed();
-            result = true;
+          if (response && response.clearManager) {
+            activeAccountManager = null;
           }
+          result = response ? response.result : null;
         } else {
           throw new Error(`Unknown feature: ${feature}`);
         }
 
+        // We assume Bare IPC is available if running via Holepunch stack.
+        // If not using Bare, replace with process.send or standard streams.
         Bare.IPC.write(StreamBuffer.serialize({ id, result }));
       } catch (error) {
         Bare.IPC.write(StreamBuffer.serialize({ id, error: error.message }));
@@ -64,25 +55,23 @@ const startWorker = async () => {
     });
 
     Bare.IPC.on("data", (data) => stream.processData(data));
-
+    
     Bare.IPC.on("close", async () => {
-      console.log("IPC closed, safely closing database...");
-      if (store) {
-        await store.close();
-      }
+      console.log("IPC closed, shutting down worker...");
+      if (activeAccountManager) await activeAccountManager.close();
+      if (store) await store.close();
       Bare.exit(0);
     });
 
-    // Let Electron know the worker is booted and ready
+    // Notify Main process that we are ready
     Bare.IPC.write(StreamBuffer.serialize({ type: "worker-ready" }));
+
   } catch (err) {
-    console.error("❌ Worker failed to start:", err);
-    // Still try to notify Electron so it doesn't hang
+    console.error("Worker failed to start:", err);
     try {
       Bare.IPC.write(StreamBuffer.serialize({ type: "worker-error", error: err.message }));
-    } catch (_) { /* IPC may already be dead */ }
+    } catch (_) {}
   }
 };
 
 startWorker();
-

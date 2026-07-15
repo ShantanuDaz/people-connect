@@ -8,7 +8,8 @@
   "scripts": {
     "start": "node worker/main.js",
     "dev": "concurrently \"vite\" \"nodemon --watch electron --watch worker -e js,cjs,mjs,json --exec 'electron . --no-sandbox'\"",
-    "dev:client": "electron . --no-sandbox --user-data-dir=./test-client-data"
+    "dev:client": "electron . --no-sandbox --user-data-dir=./test-client-data",
+    "reset": "node scripts/reset.js"
   },
   "repository": {
     "type": "git",

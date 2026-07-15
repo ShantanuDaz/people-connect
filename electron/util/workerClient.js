@@ -41,7 +41,7 @@ const heartbeatTimeout = setTimeout(() => {
 }, 3000);
 
 const stream = new StreamBuffer((message) => {
-  if (message.type === "worker-ready") {
+  if (message.type === "worker-error") { console.error("Worker Error:", message.error); clearTimeout(heartbeatTimeout); return; } if (message.type === "worker-ready") {
     workerReady = true;
     clearTimeout(heartbeatTimeout);
     console.log("🚀 Pear worker booted successfully!");
@@ -102,3 +102,13 @@ export const sendToWorker = (action, payload) => {
     worker.write(messageBuffer);
   });
 };
+
+const cleanupWorker = () => {
+  if (worker && typeof worker.kill === 'function') {
+    worker.kill();
+  }
+};
+app.on('before-quit', cleanupWorker);
+process.on('SIGINT', () => { cleanupWorker(); process.exit(0); });
+process.on('SIGTERM', () => { cleanupWorker(); process.exit(0); });
+process.on('SIGUSR2', () => { cleanupWorker(); process.exit(0); });
