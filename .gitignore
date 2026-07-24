@@ -1,3 +1,5 @@
 node_modules
-dist
-.peer2-data
+/db
+/dist
+/test-client-data
+/profiles
