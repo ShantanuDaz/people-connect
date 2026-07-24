@@ -5,7 +5,10 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node app.js",
+    "start": "electron desktop/electron/main.js --no-sandbox",
+    "dev:ui": "npm run dev --prefix desktop/ui",
+    "dev:electron": "electron desktop/electron/main.js --no-sandbox",
+    "dev": "concurrently \"npm run dev:ui\" \"npm run dev:electron\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,5 +25,9 @@
     "hyperswarm": "^4.7.0",
     "lib0": "^0.2.117",
     "yjs": "^13.6.31"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "electron": "^43.2.0"
   }
 }
