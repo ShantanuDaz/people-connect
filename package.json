@@ -1,51 +1,26 @@
 {
-  "name": "people-connect",
+  "name": "pear-chat",
   "version": "1.0.0",
-  "upgrade": "pear://0000000000000000000000000000000000000000000000000000000000000000",
   "description": "",
-  "main": "electron/electron.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node worker/main.js",
-    "dev": "concurrently \"vite\" \"nodemon --watch electron --watch worker -e js,cjs,mjs,json --exec 'electron . --no-sandbox'\"",
-    "dev:client": "electron . --no-sandbox --user-data-dir=./test-client-data",
-    "reset": "node scripts/reset.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ShantanuDaz/people-connect.git"
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ShantanuDaz/people-connect/issues"
-  },
-  "homepage": "https://github.com/ShantanuDaz/people-connect#readme",
   "dependencies": {
-    "@tailwindcss/vite": "^4.3.2",
     "autobase": "^7.28.1",
-    "b4a": "^1.8.1",
     "bip39": "^3.1.0",
-    "buffer": "^6.0.3",
-    "corestore": "^7.11.0",
+    "corestore": "^7.11.1",
+    "ed25519-keygen": "^0.6.2",
     "hyperbee": "^2.27.3",
-    "hypercore": "^11.33.5",
-    "hypercore-crypto": "^3.7.0",
-    "hyperswarm": "^4.17.0",
-    "lucide-react": "^1.24.0",
-    "pear-runtime": "^1.3.1",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "react-router": "^8.2.0",
-    "tailwindcss": "^4.3.2",
-    "zustand": "^5.0.14"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.3",
-    "concurrently": "^10.0.3",
-    "electron": "^43.1.0",
-    "nodemon": "^3.1.14",
-    "vite": "^8.1.4"
+    "hypercore": "^11.34.1",
+    "hypercore-crypto": "^3.4.0",
+    "hyperswarm": "^4.7.0",
+    "lib0": "^0.2.117",
+    "yjs": "^13.6.31"
   }
 }
